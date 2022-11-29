@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { createPlayer } from './player';
 import { createRoom, Room } from './room';
 
@@ -6,6 +7,8 @@ const rooms: Room[] = [];
 
 const app = express();
 
+// TODO: Limit origins?
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
