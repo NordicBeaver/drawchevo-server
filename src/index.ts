@@ -15,10 +15,18 @@ app.get('/', (req, res) => {
   res.send('Hi! This is drawchevo.');
 });
 
-app.post('/room', (req, res) => {
-  const room = createRoom();
+interface CreateRoomRequest {
+  username: string;
+}
+
+app.post('/room/create', (req, res) => {
+  const body = req.body as CreateRoomRequest;
+
+  const player = createPlayer(body.username);
+  const room = createRoom(player);
   rooms.push(room);
-  return res.send({ room });
+
+  return res.send({ room, player });
 });
 
 interface JoinRoomRequest {

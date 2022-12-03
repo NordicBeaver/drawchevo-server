@@ -5,13 +5,15 @@ export interface Room {
   id: string;
   code: string;
   players: Player[];
+  hostId: string;
 }
 
-export function createRoom() {
+export function createRoom(host: Player) {
   const room: Room = {
     id: uuid.v4(),
     code: generateRoomCode(),
-    players: [],
+    players: [host],
+    hostId: host.id,
   };
   return room;
 }
