@@ -1,84 +1,74 @@
-import express from 'express';
-import cors from 'cors';
-import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
-import { createPlayer } from './player';
+import { createPlayer, Player } from './player';
 import { createRoom, Room } from './room';
 
 const rooms: Room[] = [];
 const connectedPlayers: { playerId: string; socket: Socket }[] = [];
 
-const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: '*' } });
-
+const port = 3001;
 // TODO: Limit origins?
-app.use(cors());
-app.use(express.json());
+const io = new Server(port, { cors: { origin: '*' } });
 
-app.get('/', (req, res) => {
-  res.send('Hi! This is drawchevo.');
-});
-
-interface CreateRoomRequest {
+interface CreateRoomPayload {
   username: string;
 }
 
-app.post('/room/create', (req, res) => {
-  const body = req.body as CreateRoomRequest;
+interface RoomCreatedPayload {
+  room: Room;
+  player: Player;
+}
 
-  const player = createPlayer(body.username);
-  const room = createRoom(player);
-  rooms.push(room);
-
-  return res.send({ room, player });
-});
-
-interface JoinRoomRequest {
+interface JoinRoomPayload {
   roomCode: string;
   username: string;
 }
 
-app.post('/room/join', (req, res) => {
-  // TODO: Add validation
-  const body = req.body as JoinRoomRequest;
+interface RoomJoinedPayload {
+  room: Room;
+  player: Player;
+}
 
-  const room = rooms.find((r) => r.code.toLowerCase() === body.roomCode.toLowerCase());
-  if (!room) {
-    return res.status(404).send('Room not found.');
-  }
-
-  const newPlayer = createPlayer(body.username);
-  room.players.push(newPlayer);
-
-  room.players.forEach((player) => {
-    const socket = connectedPlayers.find((p) => p.playerId === player.id)?.socket;
-    if (socket) {
-      socket.emit('gameUpdate', { room });
-    }
+// TODO: Add validation
+io.on('connection', (socket) => {
+  socket.on('createRoom', ({ username }: CreateRoomPayload) => {
+    const player = createPlayer(username);
+    connectedPlayers.push({ socket: socket, playerId: player.id });
+    const room = createRoom(player);
+    rooms.push(room);
+    const payload: RoomCreatedPayload = {
+      room: room,
+      player: player,
+    };
+    socket.emit('roomCreated', payload);
   });
 
-  return res.send({ room, player: newPlayer });
-});
+  socket.on('joinRoom', ({ roomCode, username }: JoinRoomPayload) => {
+    const room = rooms.find((r) => r.code.toLowerCase() === roomCode.toLowerCase());
+    if (!room) {
+      socket.emit('error', { message: 'Room not found' });
+      return;
+    }
 
-app.get('/room/:code', (req, res) => {
-  const roomCode = req.params.code;
+    const newPlayer = createPlayer(username);
+    connectedPlayers.push({ socket: socket, playerId: newPlayer.id });
+    room.players.push(newPlayer);
 
-  const room = rooms.find((r) => r.code.toLowerCase() === roomCode.toLowerCase());
-  if (!room) {
-    return res.status(404).send('Room not found.');
-  }
+    room.players.forEach((player) => {
+      const socket = connectedPlayers.find((p) => p.playerId === player.id)?.socket;
+      if (socket) {
+        socket.emit('gameUpdate', { room });
+      }
+    });
 
-  return res.send({ room });
-});
+    const payload: RoomJoinedPayload = {
+      room: room,
+      player: newPlayer,
+    };
 
-io.on('connection', (socket) => {
-  socket.on('playerConnect', ({ playerId }: { playerId: string }) => {=
+    socket.emit('roomJoined', payload);
+  });
+
+  socket.on('playerConnect', ({ playerId }: { playerId: string }) => {
     connectedPlayers.push({ socket: socket, playerId: playerId });
   });
-});
-
-const port = 3001;
-httpServer.listen(port, () => {
-  console.log(`Server is running at ${port}`);
 });
