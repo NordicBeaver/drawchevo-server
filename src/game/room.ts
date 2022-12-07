@@ -1,19 +1,26 @@
 import * as uuid from 'uuid';
 import { Player } from './player';
+import { Prompt } from './prompt';
+
+type GameState = 'notStarted' | 'enteringPrompts' | 'finished';
 
 export interface Room {
   id: string;
   code: string;
-  players: Player[];
   hostId: string;
+  state: GameState;
+  players: Player[];
+  prompts: Prompt[];
 }
 
 export function createRoom(host: Player) {
   const room: Room = {
     id: uuid.v4(),
     code: generateRoomCode(),
-    players: [host],
     hostId: host.id,
+    state: 'notStarted',
+    players: [host],
+    prompts: [],
   };
   return room;
 }
