@@ -1,10 +1,13 @@
+import { shuffle } from 'lodash';
 import { Server, Socket } from 'socket.io';
+import { createDrawing } from './game/drawing';
 import { createPlayer, Player } from './game/player';
 import { createPrompt } from './game/prompt';
 import { createRoom, Room } from './game/room';
 
 const rooms: Room[] = [];
 const connectedPlayers: { playerId: string; socket: Socket }[] = [];
+const drawingsData: { id: string; data: string }[] = [];
 
 const port = 3001;
 // TODO: Limit origins?
@@ -35,6 +38,11 @@ interface StartGamePayload {
 
 interface PromptDoneByPlayerPayload {
   promptText: string;
+}
+
+interface DrawingDoneByPlayerPayload {
+  promptId: string;
+  drawingData: string;
 }
 
 // TODO: Add validation
@@ -83,7 +91,11 @@ io.on('connection', (socket) => {
       return;
     }
 
+    // Generate players order
+    room.playersOrder = shuffle(room.players.map((p) => p.id));
+
     room.state = 'enteringPrompts';
+    room.stage = 1;
     room.players.forEach((player) => {
       const socket = connectedPlayers.find((p) => p.playerId === player.id)?.socket;
       if (socket) {
@@ -107,7 +119,45 @@ io.on('connection', (socket) => {
     room.prompts.push(prompt);
 
     // All player done with prompts.
-    if (room.players.every((player) => room.prompts.map((p) => p.playerId).includes(player.id))) {
+    const allDone = room.players.every((player) => room.prompts.map((p) => p.playerId).includes(player.id));
+    if (allDone) {
+      room.chains = room.prompts.map((prompt) => [prompt.id]);
+      room.stage += 1;
+      room.state = 'drawing';
+    }
+
+    room.players.forEach((player) => {
+      const socket = connectedPlayers.find((p) => p.playerId === player.id)?.socket;
+      if (socket) {
+        socket.emit('gameUpdate', { room });
+      }
+    });
+  });
+
+  socket.on('drawingDoneByPlayer', ({ promptId, drawingData }: DrawingDoneByPlayerPayload) => {
+    const playerId = connectedPlayers.find((p) => p.socket.id === socket.id)?.playerId;
+    if (!playerId) {
+      return;
+    }
+
+    const room = rooms.find((room) => room.players.some((p) => p.id === playerId));
+    if (!room) {
+      return;
+    }
+
+    const chain = room.chains.find((c) => c[c.length - 1] == promptId);
+    if (!chain) {
+      return;
+    }
+
+    const drawing = createDrawing(playerId);
+    chain.push(drawing.id);
+    drawingsData.push({ id: drawing.id, data: drawingData });
+
+    // All player done drawings.
+    const allDone = room.chains.every((chain) => chain.length == room.stage);
+    if (allDone) {
+      room.stage += 1;
       room.state = 'finished';
     }
 
