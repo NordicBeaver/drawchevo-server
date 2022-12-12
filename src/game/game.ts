@@ -7,7 +7,7 @@ type GameState = 'notStarted' | 'enteringPrompts' | 'drawing' | 'finished';
 // A chanin of IDs of drawings and their names.
 type Chain = string[];
 
-export interface Room {
+export interface Game {
   id: string;
   code: string;
   hostId: string;
@@ -27,10 +27,10 @@ export interface Room {
   playersOrder: string[];
 }
 
-export function createRoom(host: Player) {
-  const room: Room = {
+export function createGame(host: Player) {
+  const room: Game = {
     id: uuid.v4(),
-    code: generateRoomCode(),
+    code: generateGameCode(),
     hostId: host.id,
     state: 'notStarted',
     stage: 0,
@@ -42,7 +42,7 @@ export function createRoom(host: Player) {
   return room;
 }
 
-function generateRoomCode() {
+function generateGameCode() {
   const code = uuid.v4().slice(0, 6).toUpperCase();
   return code;
 }
