@@ -1,16 +1,19 @@
 import { Socket } from 'socket.io';
+import { z } from 'zod/lib';
 import { Drawings } from '../../drawings';
 import { createDrawing } from '../../game/drawing';
 import { Games } from '../../games';
 import { broadcastGameUpdate } from '../broadcastGameUpdate';
 import { ConnectedPlayers } from '../connectedPlayers';
 
-interface DrawingDonePayload {
-  promptId: string;
-  drawingData: string;
-}
+const drawingDonePayloadSchema = z.object({
+  promptId: z.string(),
+  drawingData: z.string(),
+});
 
-export function drawingDoneHandler(socket: Socket, { promptId, drawingData }: DrawingDonePayload) {
+export function drawingDoneHandler(socket: Socket, payloadRaw: any) {
+  const { promptId, drawingData } = drawingDonePayloadSchema.parse(payloadRaw);
+
   const playerId = ConnectedPlayers.findPlayerBySocket(socket.id);
   if (!playerId) {
     return;
@@ -35,7 +38,7 @@ export function drawingDoneHandler(socket: Socket, { promptId, drawingData }: Dr
   const allDone = game.chains.every((chain) => chain.length == game.stage);
   if (allDone) {
     game.stage += 1;
-    game.state = 'finished';
+    game.state = 'Finished';
   }
 
   broadcastGameUpdate(game);

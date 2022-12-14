@@ -1,22 +1,25 @@
 import { Socket } from 'socket.io';
+import { z } from 'zod';
 import { Game } from '../../game/game';
 import { createPlayer, Player } from '../../game/player';
 import { Games } from '../../games';
 import { broadcastGameUpdate } from '../broadcastGameUpdate';
 import { ConnectedPlayers } from '../connectedPlayers';
 
-interface JoinGamePayload {
-  gameCode: string;
-  username: string;
-}
+const joinGamePayloadSchema = z.object({
+  roomCode: z.string(),
+  username: z.string(),
+});
 
 interface GameJoinedPayload {
   game: Game;
   player: Player;
 }
 
-export function joinGameHandler(socket: Socket, { gameCode, username }: JoinGamePayload) {
-  const game = Games.findByCode(gameCode);
+export function joinGameHandler(socket: Socket, payloadRaw: any) {
+  const { roomCode, username } = joinGamePayloadSchema.parse(payloadRaw);
+
+  const game = Games.findByCode(roomCode);
   if (!game) {
     socket.emit('error', { message: 'Game not found' });
     return;

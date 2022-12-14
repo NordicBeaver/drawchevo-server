@@ -3,12 +3,15 @@ import { createPrompt } from '../../game/prompt';
 import { Games } from '../../games';
 import { broadcastGameUpdate } from '../broadcastGameUpdate';
 import { ConnectedPlayers } from '../connectedPlayers';
+import { z } from 'zod';
 
-interface PromptDonePayload {
-  promptText: string;
-}
+const promptDonePayloadSchema = z.object({
+  promptText: z.string(),
+});
 
-export function promptDoneHandler(socket: Socket, { promptText }: PromptDonePayload) {
+export function promptDoneHandler(socket: Socket, payloadRaw: any) {
+  const { promptText } = promptDonePayloadSchema.parse(payloadRaw);
+
   const playerId = ConnectedPlayers.findPlayerBySocket(socket.id);
   if (!playerId) {
     return;
@@ -27,7 +30,7 @@ export function promptDoneHandler(socket: Socket, { promptText }: PromptDonePayl
   if (allDone) {
     game.chains = game.prompts.map((prompt) => [prompt.id]);
     game.stage += 1;
-    game.state = 'drawing';
+    game.state = 'Drawing';
   }
 
   broadcastGameUpdate(game);

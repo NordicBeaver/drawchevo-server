@@ -1,13 +1,16 @@
 import { shuffle } from 'lodash';
 import { Socket } from 'socket.io';
+import { z } from 'zod/lib';
 import { Games } from '../../games';
 import { broadcastGameUpdate } from '../broadcastGameUpdate';
 
-interface StartGamePayload {
-  playerId: string;
-}
+const startGamePayloadSchema = z.object({
+  playerId: z.string(),
+});
 
-export function startGameHandler(socket: Socket, { playerId }: StartGamePayload) {
+export function startGameHandler(socket: Socket, payloadRaw: any) {
+  const { playerId } = startGamePayloadSchema.parse(payloadRaw);
+
   const game = Games.findByHostId(playerId);
   if (!game) {
     return;
@@ -16,7 +19,7 @@ export function startGameHandler(socket: Socket, { playerId }: StartGamePayload)
   // Generate players order
   game.playersOrder = shuffle(game.players.map((p) => p.id));
 
-  game.state = 'enteringPrompts';
+  game.state = 'EnteringPrompts';
   game.stage = 1;
 
   broadcastGameUpdate(game);

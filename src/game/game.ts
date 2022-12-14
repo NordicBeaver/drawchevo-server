@@ -2,9 +2,9 @@ import * as uuid from 'uuid';
 import { Player } from './player';
 import { Prompt } from './prompt';
 
-type GameState = 'notStarted' | 'enteringPrompts' | 'drawing' | 'finished';
+type GameState = 'NotStarted' | 'EnteringPrompts' | 'Drawing' | 'Finished';
 
-// A chanin of IDs of drawings and their names.
+// A chain of IDs of drawings and their names.
 type Chain = string[];
 
 export interface Game {
@@ -32,7 +32,7 @@ export function createGame(host: Player) {
     id: uuid.v4(),
     code: generateGameCode(),
     hostId: host.id,
-    state: 'notStarted',
+    state: 'NotStarted',
     stage: 0,
     players: [host],
     prompts: [],
