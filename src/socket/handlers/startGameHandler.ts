@@ -12,6 +12,8 @@ export function startGameHandler(socket: Socket, payloadRaw: any) {
     return;
   }
 
+  game.chains = game.players.map((player) => ({ initialPlayerId: player.id, entries: [] }));
+
   // Generate players order
   game.playersOrder = shuffle(game.players.map((p) => p.id));
 

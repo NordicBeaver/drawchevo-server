@@ -21,10 +21,17 @@ export function promptDoneHandler(socket: Socket, payloadRaw: any) {
   const prompt = createPrompt(promptText, playerId);
   game.prompts.push(prompt);
 
+  const chain = game.chains.find((chain) => chain.initialPlayerId === playerId);
+  if (!chain) {
+    return;
+  }
+
+  chain.entries.push(prompt.id);
+
   // All player done with prompts.
-  const allDone = game.players.every((player) => game.prompts.map((p) => p.playerId).includes(player.id));
+  const allDone = game.chains.every((chain) => chain.entries.length === game.stage);
+
   if (allDone) {
-    game.chains = game.prompts.map((prompt) => [prompt.id]);
     game.stage += 1;
     game.state = 'Drawing';
   }

@@ -4,8 +4,12 @@ import { Prompt } from './prompt';
 
 type GameState = 'NotStarted' | 'EnteringPrompts' | 'Drawing' | 'Finished';
 
-// A chain of IDs of drawings and their names.
-type Chain = string[];
+interface Chain {
+  // The author of the first prompt
+  initialPlayerId: string;
+  /** A list of IDs in a format of [Prompt ID] -> [Drawing ID] -> [Prompt ID] -> .... -> [Prompt ID] */
+  entries: string[];
+}
 
 export interface Game {
   id: string;
