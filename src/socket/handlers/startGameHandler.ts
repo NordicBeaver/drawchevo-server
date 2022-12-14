@@ -18,7 +18,7 @@ export function startGameHandler(socket: Socket, payloadRaw: any) {
   game.playersOrder = shuffle(game.players.map((p) => p.id));
 
   game.state = 'EnteringPrompts';
-  game.stage = 1;
+  game.stage = 0;
 
   broadcastGameUpdate(game);
 }

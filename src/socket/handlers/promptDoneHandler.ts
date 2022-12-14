@@ -29,7 +29,7 @@ export function promptDoneHandler(socket: Socket, payloadRaw: any) {
   chain.entries.push(prompt.id);
 
   // All player done with prompts.
-  const allDone = game.chains.every((chain) => chain.entries.length === game.stage);
+  const allDone = game.chains.every((chain) => chain.entries.length === game.stage + 1);
 
   if (allDone) {
     game.stage += 1;

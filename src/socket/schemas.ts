@@ -9,6 +9,22 @@ export const playerDtoSchema = z.object({
   name: z.string(),
 });
 
+export const promptDtoSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  playerId: z.string(),
+});
+
+export const drawingDtoSchema = z.object({
+  id: z.string(),
+  playerId: z.string(),
+});
+
+export const chainDtoSchema = z.object({
+  initialPlayerId: z.string(),
+  entries: z.array(z.string()),
+});
+
 export const gameStateSchema = z.enum(['NotStarted', 'EnteringPrompts', 'Drawing', 'Finished']);
 
 export const gameDtoSchema = z.object({
@@ -16,7 +32,12 @@ export const gameDtoSchema = z.object({
   code: z.string(),
   hostId: z.string(),
   state: gameStateSchema,
+  stage: z.number(),
   players: z.array(playerDtoSchema),
+  prompts: z.array(promptDtoSchema),
+  drawings: z.array(drawingDtoSchema),
+  chains: z.array(chainDtoSchema),
+  playersOrder: z.array(z.string()),
 });
 
 export const gameUpdatePayloadSchema = z.object({

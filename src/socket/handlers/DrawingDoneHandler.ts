@@ -19,18 +19,19 @@ export function drawingDoneHandler(socket: Socket, payloadRaw: any) {
     return;
   }
 
+  const drawing = createDrawing(playerId);
+  Drawings.saveDrawingData(drawing.id, drawingData);
+
+  game.drawings.push(drawing);
+
   const chain = game.chains.find((chain) => chain.entries[chain.entries.length - 1] == promptId);
   if (!chain) {
     return;
   }
-
-  const drawing = createDrawing(playerId);
   chain.entries.push(drawing.id);
 
-  Drawings.saveDrawingData(drawing.id, drawingData);
-
   // All player done drawings.
-  const allDone = game.chains.every((chain) => chain.entries.length == game.stage);
+  const allDone = game.chains.every((chain) => chain.entries.length == game.stage + 1);
   if (allDone) {
     game.stage += 1;
     game.state = 'Finished';

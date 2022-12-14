@@ -1,4 +1,5 @@
 import * as uuid from 'uuid';
+import { Drawing } from './drawing';
 import { Player } from './player';
 import { Prompt } from './prompt';
 
@@ -23,6 +24,7 @@ export interface Game {
   stage: number;
   players: Player[];
   prompts: Prompt[];
+  drawings: Drawing[];
   chains: Chain[];
   /**
    * The order of players used for assigning tasks for them. For exmplae, when drawing stage starts,
@@ -40,6 +42,7 @@ export function createGame(host: Player) {
     stage: 0,
     players: [host],
     prompts: [],
+    drawings: [],
     chains: [],
     playersOrder: [],
   };
