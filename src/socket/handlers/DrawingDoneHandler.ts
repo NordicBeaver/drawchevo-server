@@ -30,11 +30,15 @@ export function drawingDoneHandler(socket: Socket, payloadRaw: any) {
   }
   chain.entries.push(drawing.id);
 
-  // All player done drawings.
-  const allDone = game.chains.every((chain) => chain.entries.length == game.stage + 1);
-  if (allDone) {
+  const allPlayersDone = game.chains.every((chain) => chain.entries.length === game.stage + 1);
+  if (allPlayersDone) {
     game.stage += 1;
-    game.state = 'Finished';
+    game.state = 'EnteringPrompts';
+
+    const allStagesCompleted = game.chains[0].entries.length === game.playersOrder.length;
+    if (allStagesCompleted) {
+      game.state = 'Finished';
+    }
   }
 
   broadcastGameUpdate(game);
