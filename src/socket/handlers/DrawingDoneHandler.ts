@@ -1,15 +1,10 @@
 import { Socket } from 'socket.io';
-import { z } from 'zod/lib';
 import { Drawings } from '../../drawings';
 import { createDrawing } from '../../game/drawing';
 import { Games } from '../../games';
 import { broadcastGameUpdate } from '../broadcastGameUpdate';
 import { ConnectedPlayers } from '../connectedPlayers';
-
-const drawingDonePayloadSchema = z.object({
-  promptId: z.string(),
-  drawingData: z.string(),
-});
+import { drawingDonePayloadSchema } from '../schemas';
 
 export function drawingDoneHandler(socket: Socket, payloadRaw: any) {
   const { promptId, drawingData } = drawingDonePayloadSchema.parse(payloadRaw);

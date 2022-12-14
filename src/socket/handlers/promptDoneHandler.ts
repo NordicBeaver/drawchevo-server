@@ -3,11 +3,7 @@ import { createPrompt } from '../../game/prompt';
 import { Games } from '../../games';
 import { broadcastGameUpdate } from '../broadcastGameUpdate';
 import { ConnectedPlayers } from '../connectedPlayers';
-import { z } from 'zod';
-
-const promptDonePayloadSchema = z.object({
-  promptText: z.string(),
-});
+import { promptDonePayloadSchema } from '../schemas';
 
 export function promptDoneHandler(socket: Socket, payloadRaw: any) {
   const { promptText } = promptDonePayloadSchema.parse(payloadRaw);

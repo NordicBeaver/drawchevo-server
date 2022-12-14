@@ -1,20 +1,10 @@
 import { Socket } from 'socket.io';
 import { z } from 'zod';
-import { Game } from '../../game/game';
-import { createPlayer, Player } from '../../game/player';
+import { createPlayer } from '../../game/player';
 import { Games } from '../../games';
 import { broadcastGameUpdate } from '../broadcastGameUpdate';
 import { ConnectedPlayers } from '../connectedPlayers';
-
-const joinGamePayloadSchema = z.object({
-  roomCode: z.string(),
-  username: z.string(),
-});
-
-interface GameJoinedPayload {
-  game: Game;
-  player: Player;
-}
+import { gameJoinedPayloadSchema, joinGamePayloadSchema } from '../schemas';
 
 export function joinGameHandler(socket: Socket, payloadRaw: any) {
   const { roomCode, username } = joinGamePayloadSchema.parse(payloadRaw);
@@ -32,7 +22,7 @@ export function joinGameHandler(socket: Socket, payloadRaw: any) {
 
   broadcastGameUpdate(game);
 
-  const payload: GameJoinedPayload = {
+  const payload: z.infer<typeof gameJoinedPayloadSchema> = {
     game: game,
     player: newPlayer,
   };

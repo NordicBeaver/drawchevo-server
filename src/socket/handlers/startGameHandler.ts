@@ -1,12 +1,8 @@
 import { shuffle } from 'lodash';
 import { Socket } from 'socket.io';
-import { z } from 'zod/lib';
 import { Games } from '../../games';
 import { broadcastGameUpdate } from '../broadcastGameUpdate';
-
-const startGamePayloadSchema = z.object({
-  playerId: z.string(),
-});
+import { startGamePayloadSchema } from '../schemas';
 
 export function startGameHandler(socket: Socket, payloadRaw: any) {
   const { playerId } = startGamePayloadSchema.parse(payloadRaw);

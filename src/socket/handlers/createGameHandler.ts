@@ -4,15 +4,7 @@ import { createGame, Game } from '../../game/game';
 import { createPlayer, Player } from '../../game/player';
 import { Games } from '../../games';
 import { ConnectedPlayers } from '../connectedPlayers';
-
-const createGamePayloadSchema = z.object({
-  username: z.string(),
-});
-
-interface GameCreatedPayload {
-  game: Game;
-  player: Player;
-}
+import { createGamePayloadSchema, gameCreatedPayloadSchema } from '../schemas';
 
 export function createGameHandler(socket: Socket, payloadRaw: any) {
   const { username } = createGamePayloadSchema.parse(payloadRaw);
@@ -22,9 +14,10 @@ export function createGameHandler(socket: Socket, payloadRaw: any) {
   const game = createGame(player);
   Games.add(game);
 
-  const payload: GameCreatedPayload = {
+  const payload: z.infer<typeof gameCreatedPayloadSchema> = {
     game: game,
     player: player,
   };
+
   socket.emit('gameCreated', payload);
 }
