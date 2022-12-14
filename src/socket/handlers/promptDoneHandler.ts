@@ -35,7 +35,7 @@ export function promptDoneHandler(socket: Socket, payloadRaw: any) {
 
     const allStagesCompleted = game.chains[0].entries.length === game.playersOrder.length;
     if (allStagesCompleted) {
-      game.state = 'Finished';
+      game.state = 'Results';
     }
   }
 

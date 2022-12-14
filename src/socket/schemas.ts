@@ -25,7 +25,7 @@ export const chainDtoSchema = z.object({
   entries: z.array(z.string()),
 });
 
-export const gameStateSchema = z.enum(['NotStarted', 'EnteringPrompts', 'Drawing', 'Finished']);
+export const gameStateSchema = z.enum(['NotStarted', 'EnteringPrompts', 'Drawing', 'Results']);
 
 export const gameDtoSchema = z.object({
   id: z.string(),
@@ -43,6 +43,29 @@ export const gameDtoSchema = z.object({
 export const drawingDataSchema = z.object({
   id: z.string(),
   data: z.string(),
+});
+
+export const promptResultSchema = z.object({
+  type: z.literal('prompt'),
+  playerName: z.string(),
+  text: z.string(),
+});
+
+export const drawingResultSchema = z.object({
+  type: z.literal('drawing'),
+  playerName: z.string(),
+  drawingData: z.string(),
+});
+
+export const resultEntryschema = z.union([promptResultSchema, drawingResultSchema]);
+
+export const chainResultSchema = z.object({
+  initialPlayerName: z.string(),
+  entries: z.array(resultEntryschema),
+});
+
+export const gameResultSchema = z.object({
+  chains: z.array(chainResultSchema),
 });
 
 export const gameUpdatePayloadSchema = z.object({
@@ -87,4 +110,8 @@ export const requestDrawingDataPayloadSchema = z.object({
 
 export const drawingDataPayloadSchema = z.object({
   drawing: drawingDataSchema,
+});
+
+export const gameResultPayloadSchema = z.object({
+  gameResult: gameResultSchema,
 });

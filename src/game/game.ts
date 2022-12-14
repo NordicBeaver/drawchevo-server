@@ -3,7 +3,7 @@ import { Drawing } from './drawing';
 import { Player } from './player';
 import { Prompt } from './prompt';
 
-type GameState = 'NotStarted' | 'EnteringPrompts' | 'Drawing' | 'Finished';
+type GameState = 'NotStarted' | 'EnteringPrompts' | 'Drawing' | 'Results';
 
 interface Chain {
   // The author of the first prompt
