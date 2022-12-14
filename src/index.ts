@@ -3,6 +3,7 @@ import { createGameHandler } from './socket/handlers/createGameHandler';
 import { drawingDoneHandler } from './socket/handlers/drawingDoneHandler';
 import { joinGameHandler } from './socket/handlers/joinGameHandler';
 import { promptDoneHandler } from './socket/handlers/promptDoneHandler';
+import { requestDrawingDataHandler } from './socket/handlers/requestDrawingDataHandler';
 import { startGameHandler } from './socket/handlers/startGameHandler';
 
 const port = 3001;
@@ -26,4 +27,5 @@ io.on('connection', (socket) => {
   addListener(socket, 'startGame', startGameHandler);
   addListener(socket, 'promptDoneByPlayer', promptDoneHandler);
   addListener(socket, 'drawingDoneByPlayer', drawingDoneHandler);
+  addListener(socket, 'requestDrawingData', requestDrawingDataHandler);
 });

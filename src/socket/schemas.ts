@@ -40,6 +40,11 @@ export const gameDtoSchema = z.object({
   playersOrder: z.array(z.string()),
 });
 
+export const drawingDataSchema = z.object({
+  id: z.string(),
+  data: z.string(),
+});
+
 export const gameUpdatePayloadSchema = z.object({
   game: gameDtoSchema,
 });
@@ -74,4 +79,12 @@ export const promptDonePayloadSchema = z.object({
 
 export const startGamePayloadSchema = z.object({
   playerId: z.string(),
+});
+
+export const requestDrawingDataPayloadSchema = z.object({
+  drawingId: z.string(),
+});
+
+export const drawingDataPayloadSchema = z.object({
+  drawing: drawingDataSchema,
 });
