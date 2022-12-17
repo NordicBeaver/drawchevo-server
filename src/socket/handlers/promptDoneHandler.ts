@@ -6,7 +6,7 @@ import { ConnectedPlayers } from '../connectedPlayers';
 import { promptDonePayloadSchema } from '../schemas';
 
 export function promptDoneHandler(socket: Socket, payloadRaw: any) {
-  const { promptText } = promptDonePayloadSchema.parse(payloadRaw);
+  const { promptText, drawingId } = promptDonePayloadSchema.parse(payloadRaw);
 
   const playerId = ConnectedPlayers.findPlayerBySocket(socket.id);
   if (!playerId) {
@@ -21,7 +21,11 @@ export function promptDoneHandler(socket: Socket, payloadRaw: any) {
   const prompt = createPrompt(promptText, playerId);
   game.prompts.push(prompt);
 
-  const chain = game.chains.find((chain) => chain.initialPlayerId === playerId);
+  // The first prompt in a chain doesn't have a drawingId
+  const chain =
+    drawingId != null
+      ? game.chains.find((chain) => chain.entries[chain.entries.length - 1] == drawingId)
+      : game.chains.find((chain) => chain.initialPlayerId === playerId);
   if (!chain) {
     return;
   }

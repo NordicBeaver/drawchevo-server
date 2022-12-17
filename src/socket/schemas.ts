@@ -97,6 +97,7 @@ export const gameJoinedPayloadSchema = z.object({
 });
 
 export const promptDonePayloadSchema = z.object({
+  drawingId: z.string().optional(),
   promptText: z.string(),
 });
 
