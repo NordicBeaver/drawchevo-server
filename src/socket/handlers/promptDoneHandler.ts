@@ -25,7 +25,7 @@ export function promptDoneHandler(socket: Socket, payloadRaw: any) {
   const chain =
     drawingId != null
       ? game.chains.find((chain) => chain.entries[chain.entries.length - 1] == drawingId)
-      : game.chains.find((chain) => chain.initialPlayerId === playerId);
+      : game.chains.find((chain) => chain.initialPlayerId === playerId && chain.entries.length === 0);
   if (!chain) {
     return;
   }
